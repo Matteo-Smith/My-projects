@@ -1,0 +1,318 @@
+---
+title: "Confirmatory analysis"
+output: html_notebook
+---
+
+## Replication study and hypotheses
+
+This is a data analysis plan for the replication of:
+
+Johnson, J. S., & Newport, E. L. (1989). Critical Period Effects in Second Language Learning: The Influence of Maturational State on the Acquisition of English as a Second Language. Cognitive Psychology, 21, 60–99. 
+
+
+The original test of the primary hypothesis is a independent t-test that compares the mean grammar test score across five groups: native English speakers and second-language speakers, classified by the age at which they started to learn English. A power analysis revealed that 545 participants were needed in each condition to achieve at least 80% power. Here I will document the analysis plan for this replication. A successful replication will find evidence of support for the alternate hypothesis, which is:
+
+H1: There will be a negative relationship between the age of exposure to English and the performance in the test, lasting up to adulthood.
+
+The null hypothesis being tested in the independent t-tests is:
+
+H0: There will be no relationship between the age of exposure to English and the performance in the test.
+
+## Load data
+
+```{r}
+install.packages("vctrs")
+library(vctrs)
+install.packages('readr')
+library(readr)
+data <- read_csv("~/Desktop/45160/Data/data.csv")
+```
+
+## Preliminary analysis
+
+### Data Screening and cleaning
+
+First the data will be screened for erroneous and missing values. The outcome in this study, mean score, is bounded between 0 and 276 and so any responses beyond this range will be replaced with a missing value.
+
+```{r}
+library(tidyverse)
+library(psych)
+library(naniar)
+data <-
+  data %>%
+  replace_with_na(replace = list(~.score > 276, ~.score < 0)) 
+describe(data)
+```
+
+As this is an experimental study, any missing values will be removed listwise from the sample..
+
+```{r}
+drop_na(data) 
+```
+
+### Summary statistics and distributions
+
+I will inspect the means and standard deviations of each group in the study.
+
+```{r}
+describeBy(data,data$group)
+```
+
+Then I will create a plot for the distributions of each group.
+
+```{r}
+library(ggplot2)
+library(plyr)
+
+## Find mean for each condition
+
+means <- ddply(data, "group", summarise, score.mean=mean(score))
+
+## Plot distributions
+
+plot1 <- ggplot(data, aes(x=score)) + geom_histogram(binwidth=.5, colour="black", fill="white") + 
+    facet_grid(group ~ .) +
+    geom_vline(data=means, aes(xintercept=score.mean),
+               linetype="dashed", size=1, colour="red") + theme_classic()
+
+print(plot1)
+
+
+## Save plot
+ggsave(file="~/Desktop/45160/Plots/plot_1.png")
+```
+
+And finally create an APA table with the mean and sd for each condition.
+
+```{r}
+library(apaTables)
+apa.1way.table(iv=group,dv=score,data=data,filename="~/Desktop/45160/Tables/table_1.doc",table.number = 1)
+```
+
+In order to perform 4 independent t-tests, I will use the split() function in order to split the 'data' data frame into 5 sub-data frames for each group. I will then combine the data frames two by two so that I can perform a t-test on each pair.
+
+```{r}
+list_of_dfs <- split(data, data$group)
+df_native <- list_of_dfs$native
+df_three_seven <- list_of_dfs$three_seven
+df_eight_ten <- list_of_dfs$eight_ten
+df_eleven_fifteen <- list_of_dfs$eleven_fifteen
+df_seventeen_thirynine <- list_of_dfs$seventeen_thirtynine
+df_native
+df_three_seven
+df_eight_ten
+df_eleven_fifteen
+df_seventeen_thirynine
+```
+
+The following code will combine the data frames two by two, producing 4 data frames ready to t-test.
+```{r}
+df_ttest1<- rbind(df_native, df_three_seven)
+df_ttest2 <- rbind(df_three_seven, df_eight_ten)
+df_ttest3 <- rbind(df_eight_ten, df_eleven_fifteen)
+df_ttest4 <- rbind(df_eleven_fifteen, df_seventeen_thirynine)
+df_ttest1
+df_ttest2
+df_ttest3
+df_ttest4
+```
+
+
+## Confirmatory analysis
+
+The next step is to conduct the independent samples t-test for the primary confirmatory hypothesis testing as listed in the data analysis plan. 
+
+### T-test 1
+
+I'll perform Levene's Test for Homogeneity of Variance to test the equality of variances between the groups.
+```{r}
+library(car)
+levene_ttest1 <- leveneTest(score ~ group, data=df_ttest1)
+levene_ttest1
+```
+
+The p-value is 0.737, which is greater than a 0.05 significance level. I cannot reject the hypothesis of equal variances, so I will use the var.equal argument set to TRUE in the t-test.
+
+```{r}
+library(MKinfer)
+t.test(score ~ group, data=df_ttest1, var.equal=TRUE, paired=FALSE)
+boot.t.test(score ~ group, data=df_ttest1, var.equal=TRUE, R = 5000)
+```
+
+Now I will calculate the effect size for the experimental condition.
+
+```{r}
+library(rstatix)
+cohens_d(df_ttest1, score ~ group,  var.equal = TRUE)
+```
+
+#### Tables and figures for reporting 
+
+To report the results from the independent t-test I will visualize the means and 95% confidence intervals for each condition using a bar chart with error bars.
+
+```{r}
+library(rcompanion)
+sum <- groupwiseMean(score ~ group, data=df_ttest1,conf   = 0.95,digits = 3)
+qplot(x    = group ,
+      y    = Mean,
+      data = sum) +
+
+geom_bar(stat ="identity",
+         fill = "gray", width = .40, alpha=.5
+        ) +
+
+geom_errorbar(aes(ymin  = Trad.lower,
+                  ymax  = Trad.upper,
+                  width = 0.15)) +
+  xlab("Group") +
+  ylab("Mean Test Score")+
+  theme_classic()
+
+ggsave(file="~/Desktop/45160/Plots/plot_2.png")
+```
+### T-test 2
+
+I'll perform Levene's Test for Homogeneity of Variance to test the equality of variances between the groups.
+```{r}
+library(car)
+levene_ttest2 <- leveneTest(score ~ group, data=df_ttest2)
+levene_ttest2
+```
+
+The p-value is smaller than 2.2e-16, which is much lower than a 0.05 significance level. There is strong evidence to reject the hypothesis of equal variances, so I will use a Welch's t-test.
+
+```{r}
+library(MKinfer)
+t.test(score ~ group, data=df_ttest2, var.equal=FALSE, paired=FALSE)
+boot.t.test(score ~ group, data=df_ttest2, var.equal=FALSE, R = 5000)
+```
+
+Now I will calculate the effect size for the experimental condition.
+
+```{r}
+library(rstatix)
+cohens_d(df_ttest2, score ~ group,  var.equal = FALSE)
+```
+
+#### Tables and figures for reporting 
+
+To report the results from the independent t-test I will visualize the means and 95% confidence intervals for each condition using a bar chart with error bars.
+
+```{r}
+library(rcompanion)
+sum <- groupwiseMean(score ~ group, data=df_ttest2,conf   = 0.95,digits = 3)
+qplot(x    = group ,
+      y    = Mean,
+      data = sum) +
+
+geom_bar(stat ="identity",
+         fill = "gray", width = .40, alpha=.5
+        ) +
+
+geom_errorbar(aes(ymin  = Trad.lower,
+                  ymax  = Trad.upper,
+                  width = 0.15)) +
+  xlab("Group") +
+  ylab("Mean Test Score")+
+  theme_classic()
+
+ggsave(file="~/Desktop/45160/Plots/plot_3.png")
+```
+
+### T-test 3
+
+I'll perform Levene's Test for Homogeneity of Variance to test the equality of variances between the groups.
+```{r}
+library(car)
+levene_ttest3 <- leveneTest(score ~ group, data=df_ttest3)
+levene_ttest3
+```
+
+The p-value is smaller than 2.2e-16, which is much lower than a 0.05 significance level. There is strong evidence to reject the hypothesis of equal variances, so I will use a Welch's t-test.
+
+```{r}
+library(MKinfer)
+t.test(score ~ group, data=df_ttest3, var.equal=FALSE, paired=FALSE)
+boot.t.test(score ~ group, data=df_ttest3, var.equal=FALSE, R = 5000)
+```
+
+Now I will calculate the effect size for the experimental condition.
+
+```{r}
+library(rstatix)
+cohens_d(df_ttest3, score ~ group,  var.equal = FALSE)
+```
+
+#### Tables and figures for reporting 
+
+To report the results from the independent t-test I will visualize the means and 95% confidence intervals for each condition using a bar chart with error bars.
+
+```{r}
+library(rcompanion)
+sum <- groupwiseMean(score ~ group, data=df_ttest3,conf   = 0.95,digits = 3)
+qplot(x    = group ,
+      y    = Mean,
+      data = sum) +
+
+geom_bar(stat ="identity",
+         fill = "gray", width = .40, alpha=.5
+        ) +
+
+geom_errorbar(aes(ymin  = Trad.lower,
+                  ymax  = Trad.upper,
+                  width = 0.15)) +
+  xlab("Group") +
+  ylab("Mean Test Score")+
+  theme_classic()
+
+ggsave(file="~/Desktop/45160/Plots/plot_4.png")
+```
+
+### T-test 4
+
+I'll perform Levene's Test for Homogeneity of Variance to test the equality of variances between the groups.
+```{r}
+library(car)
+levene_ttest4 <- leveneTest(score ~ group, data=df_ttest4)
+levene_ttest4
+```
+
+The p-value is smaller than 2.2e-16, which is much lower than a 0.05 significance level. There is strong evidence to reject the hypothesis of equal variances, so I will use a Welch's t-test.
+
+```{r}
+library(MKinfer)
+t.test(score ~ group, data=df_ttest4, var.equal=FALSE, paired=FALSE)
+boot.t.test(score ~ group, data=df_ttest4, var.equal=FALSE, R = 5000)
+```
+
+Now I will calculate the effect size for the experimental condition.
+
+```{r}
+library(rstatix)
+cohens_d(df_ttest4, score ~ group,  var.equal = FALSE)
+```
+
+#### Tables and figures for reporting 
+
+To report the results from the independent t-test I will visualize the means and 95% confidence intervals for each condition using a bar chart with error bars.
+
+```{r}
+library(rcompanion)
+sum <- groupwiseMean(score ~ group, data=df_ttest4,conf   = 0.95,digits = 3)
+qplot(x    = group ,
+      y    = Mean,
+      data = sum) +
+
+geom_bar(stat ="identity",
+         fill = "gray", width = .40, alpha=.5
+        ) +
+
+geom_errorbar(aes(ymin  = Trad.lower,
+                  ymax  = Trad.upper,
+                  width = 0.15)) +
+  xlab("Group") +
+  ylab("Mean Test Score")+
+  theme_classic()
+
+ggsave(file="~/Desktop/45160/Plots/plot_5.png")
+```

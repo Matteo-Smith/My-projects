@@ -1,0 +1,72 @@
+---
+title: "Data Simulation"
+output: html_notebook
+---
+
+# Simulating data for replication of Johnson & Newport (1989) 
+
+The confirmatory hypothesis tests undertaken by Johnson & Newport (1989) were independent samples t-tests which compared the differences between two groups at a time.
+
+The power analyses revealed that I will need a sample of n1 = 600 and n2 = 498 to replicate the original effect size with 80% power. The other sample sizes will not be changed.
+
+## Groups means and sd
+
+First, I will set the means and standard deviations of the sample distribution in accordance to those from the original study. Then, I will use the rnorm function to simulate mean test scores.
+
+```{r}
+native <- rnorm(545, mean = 268.8, sd = 2.9)
+three_seven <- rnorm(545, mean = 269.3, sd = 2.8)
+eight_ten <- rnorm(545, mean = 256, sd = 6)
+eleven_fifteen <- rnorm(545, mean = 235.9, sd = 13.6)
+seventeen_thirtynine <- rnorm(545, mean = 210.3, sd = 22.8)
+```
+
+## Setting the limits
+
+Test scores have a lower limit of 0 and an upper limit of 276, so I will make sure none of the numbers exceed these restrictions.
+
+```{r}
+native[native > 276] <- 276
+native[native < 0] <- 0
+three_seven[three_seven > 276] <- 276
+three_seven[three_seven < 0] <- 0
+eight_ten[eight_ten > 276] <- 276
+eight_ten[eight_ten < 0] <- 0
+eleven_fifteen[eleven_fifteen > 276] <- 276
+eleven_fifteen[eleven_fifteen < 0] <- 0
+seventeen_thirtynine[seventeen_thirtynine > 276] <- 276
+seventeen_thirtynine[seventeen_thirtynine < 0] <- 0
+```
+
+## Checking the means
+
+```{r}
+mean(native)
+mean(three_seven)
+mean(eight_ten)
+mean(eleven_fifteen)
+mean(seventeen_thirtynine)
+```
+
+## Creating the dataframe
+
+I will use the gather function to horizontally stack data, and I will create a group factor and the score outcome variable.
+
+```{r}
+library(tidyverse)
+data <- data.frame(ID=1:545, native=native, three_seven=three_seven, eight_ten=eight_ten, eleven_fifteen=eleven_fifteen, seventeen_thirtynine=seventeen_thirtynine)
+
+data <- gather(data, key=group, value=score, native, three_seven, eight_ten, eleven_fifteen, seventeen_thirtynine)
+
+data$group = as.factor(data$group)
+
+data
+```
+
+## Save as dataframe (.csv)
+
+Finally, I will save the dataframe as a .csv file
+
+```{r}
+write.csv(data, "data.csv")
+```

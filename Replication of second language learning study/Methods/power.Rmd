@@ -1,0 +1,40 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(pwr)
+
+#First t-test: original study's power
+pwr.t2n.test(n1 = 23, n2= 7, d = 0.17, sig.level = 0.05)
+```
+
+```{r}
+#First t-test: needed sample size
+pwr.t.test(power=0.8, d = 0.17, sig.level = 0.05, type = c("two.sample"))
+```
+
+Given the original study’s Cohen d for the first t-test, the required sample size to obtain a sufficient power would be 545 participants in each group, with a power of 0.8. 545 participants per group is quite a lot, and will be costly and time consuming. However, a large sample is unavoidable given the need for a 0.8 power, due to a trade-off between the cost of the study and the desired level of confidence.
+
+```{r}
+#2nd t-test: original study's power, to see just for fun what power the original study's second t-test had when there were 7 participants in the 3-7 age group instead of 545
+pwr.t2n.test(n1 = 7, n2= 8, d = 2.773, sig.level = 0.05)
+```
+
+```{r}
+#2nd t-test: adjusted sample size, now with the 545 participants in the 3-7 age group instead of the 7 from the original study
+pwr.t.test(n=545, d=2.773, sig.level=0.05, type = c("two.sample"))
+```
+
+```{r}
+#3rd t-test: original study's power
+pwr.t.test(n=545, d = 1.912, sig.level = 0.05, type = c("two.sample"))
+```
+
+```{r}
+#4th t-test: original study's power
+pwr.t.test(n = 545, d = 1.222, sig.level = 0.05, type = c("two.sample"))
+```
+
+These other test have a power of 1. Such a high power is not inherently undesirable but is often avoided as it is generally accompanied by a costly sample size. However, I must have equal sample sizes (as I am otherwise unable to make a data frame containing the simulated data) and the power analysis of the first test requires a high sample size. Therefore, the power of 1 cannot be avoided. The benefit of this is that the second, third and fourth t-tests have a 100% chance of detecting the specified effect, if it exists.

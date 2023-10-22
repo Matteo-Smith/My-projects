@@ -1,0 +1,76 @@
+{\rtf1\ansi\deff0 {\fonttbl {\f0 Times New Roman;}}
+{\pard Table 1 \par}
+{\pard  \par}
+{\pard\i Descriptive statistics for score as a function of group. \par}
+{\pard  \par}
+{
+\trowd \trgaph100
+\clbrdrt\brdrw15\brdrs
+\clvertalc\cellx2051 
+\clbrdrt\brdrw15\brdrs
+\clvertalc\cellx2915 
+\clbrdrt\brdrw15\brdrs
+\clvertalc\cellx3779 
+\pard\sa0\sb0\intbl\qr{group}\cell
+\pard\sa0\sb0\intbl\qc{{\i M}}\cell
+\pard\sa0\sb0\intbl\qc{{\i SD}}\cell
+\row
+}
+{
+\trowd \trgaph100
+\clbrdrt\brdrw15\brdrs
+\clvertalc\cellx2051 
+\clbrdrt\brdrw15\brdrs
+\clvertalc\cellx2915 
+\clbrdrt\brdrw15\brdrs
+\clvertalc\cellx3779 
+\pard\sa0\sb0\intbl\qr{eight_ten}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{256.51}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{6.00}\cell
+\row
+}
+{
+\trowd \trgaph100
+\clvertalc\cellx2051 
+\clvertalc\cellx2915 
+\clvertalc\cellx3779 
+\pard\sa0\sb0\intbl\qr{eleven_fifteen}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{235.67}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{13.08}\cell
+\row
+}
+{
+\trowd \trgaph100
+\clvertalc\cellx2051 
+\clvertalc\cellx2915 
+\clvertalc\cellx3779 
+\pard\sa0\sb0\intbl\qr{native}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{268.64}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{2.93}\cell
+\row
+}
+{
+\trowd \trgaph100
+\clvertalc\cellx2051 
+\clvertalc\cellx2915 
+\clvertalc\cellx3779 
+\pard\sa0\sb0\intbl\qr{seventeen_thirtynine}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{210.20}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{23.89}\cell
+\row
+}
+{
+\trowd \trgaph100
+\clbrdrb\brdrw15\brdrs
+\clvertalc\cellx2051 
+\clbrdrb\brdrw15\brdrs
+\clvertalc\cellx2915 
+\clbrdrb\brdrw15\brdrs
+\clvertalc\cellx3779 
+\pard\sa0\sb0\intbl\qr{three_seven}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{269.31}\cell
+\pard\sa0\sb0\intbl\tqdec\tldot\tx302{2.86}\cell
+\row
+}
+{\pard \par}{\pard{\i Note.} {\i M} and {\i SD} represent mean and standard deviation, respectively.\par}
+}
